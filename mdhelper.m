@@ -28,12 +28,28 @@ NSString *recoveryFolderPath()
 
 NSArray *backupFolders()
 {
-	return [[NSFileManager defaultManager] directoryContentsAtPath:backupDirPath()];
+    NSError *err = nil;
+    NSArray *folders = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:backupDirPath() error:&err];
+    if (folders == nil) {
+        if (err != nil) {
+            NSLog(@"Error retrieving backup folders: %@", err);
+        }
+    }
+    return folders;
 }
 
 void createRecoveryFolder ()
 {
-	[[NSFileManager defaultManager] createDirectoryAtPath:recoveryFolderPath() attributes:NULL];
+    NSError *err = nil;
+    BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:recoveryFolderPath()
+                                             withIntermediateDirectories:YES
+                                                              attributes:nil
+                                                                   error:&err];
+    if (success == NO) {
+        if (err != nil) {
+            NSLog(@"Error retrieving backup folders: %@", err);
+        }
+    }
 }
 
 #pragma mark plist utilities
@@ -312,7 +328,16 @@ void fileDrillDown(NSString *from, NSString *path)
 	for (NSString *each in components)
 	{
 		xpath = [xpath stringByAppendingPathComponent:each];
-		[[NSFileManager defaultManager] createDirectoryAtPath:xpath attributes:NULL];
+        NSError *err = nil;
+        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:xpath
+                                                 withIntermediateDirectories:YES
+                                                                  attributes:nil
+                                                                       error:nil];
+        if (success == NO) {
+            if (err != NULL) {
+                NSLog(@"Error creating drill-down path: %@", err);
+            }
+        }
 	}
 }
 
@@ -337,12 +362,17 @@ void extractPlatformContents(int option, NSString *pmatchphrase, NSString *fmatc
 		if (!pmatch) continue;
 		
 		printf("\nDEVICE %s\n", [deviceName UTF8String]);
-		NSArray *mdArray2 = [[[NSFileManager defaultManager] directoryContentsAtPath:fullPath] pathsMatchingExtensions:[NSArray arrayWithObject:@"mdbackup"]];
-		NSArray *mdArray3 = [[[NSFileManager defaultManager] directoryContentsAtPath:fullPath] pathsMatchingExtensions:[NSArray arrayWithObject:@"mdinfo"]];
+        NSArray *mdArray2 = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:nil]
+                             pathsMatchingExtensions:[NSArray arrayWithObject:@"mdbackup"]];
+        NSArray *mdArray3 = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:nil]
+                             pathsMatchingExtensions:[NSArray arrayWithObject:@"mdinfo"]];
 		int fcount = 0;
 		
 		NSString *devDir = [recoveryFolderPath() stringByAppendingPathComponent:deviceName];
-		[[NSFileManager defaultManager] createDirectoryAtPath:devDir attributes:NULL];
+        [[NSFileManager defaultManager] createDirectoryAtPath:devDir
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:nil];
 		
 		// extract files from the v2 
 		if (!(option & SKIPOLD))
