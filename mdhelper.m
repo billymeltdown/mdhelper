@@ -219,11 +219,11 @@ void listPlatformContents(int option, NSString *pmatchphrase, NSString *fmatchph
 		printf("\nDEVICE %s (%s)\n", [deviceName UTF8String], [moddate UTF8String]);
 		printf("Directory: %s\n", [path UTF8String]);
 		
-		NSArray *mdArray2 = [[[NSFileManager defaultManager] directoryContentsAtPath:fullPath] pathsMatchingExtensions:[NSArray arrayWithObject:@"mdbackup"]];
-		if (!(option & SKIPOLD))	printf("Total mdbackup files found: %d backup files\n", [mdArray2 count]);
+		NSArray *mdArray2 = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:nil] pathsMatchingExtensions:[NSArray arrayWithObject:@"mdbackup"]];
+		if (!(option & SKIPOLD))	printf("Total mdbackup files found: %d backup files\n", (int)[mdArray2 count]);
 		
-		NSArray *mdArray3 = [[[NSFileManager defaultManager] directoryContentsAtPath:fullPath] pathsMatchingExtensions:[NSArray arrayWithObject:@"mdinfo"]];
-		if (!(option & SKIPNEW)) printf("Total mdinfo files found: %d backup files\n", [mdArray3 count]);
+		NSArray *mdArray3 = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:nil] pathsMatchingExtensions:[NSArray arrayWithObject:@"mdinfo"]];
+		if (!(option & SKIPNEW)) printf("Total mdinfo files found: %d backup files\n", (int)[mdArray3 count]);
 		
 		// Scan through the old style mdbackup files
 		if ((option & SHOWFILES) && !(option & SKIPOLD))
